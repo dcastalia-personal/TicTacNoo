@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/In%20Game.uss?fileID=7433441132597879392&amp;guid=31af763db3aa3407f89b1fe2cbc4a3a3&amp;type=3#In Game" />
+    <ui:VisualElement name="Match_Info" class="out" style="flex-grow: 1; flex-direction: row; max-height: 40px;">
+        <ui:Label text="Critical Mass:" style="-unity-text-align: upper-right; flex-grow: 1; flex-direction: row; max-height: 40px; margin-right: 8px;" />
+        <ui:Label text="3" name="Critical_Mass" style="flex-direction: row; flex-grow: 1; max-height: 40px;" />
+    </ui:VisualElement>
+</ui:UXML>

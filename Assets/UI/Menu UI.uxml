@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/In%20Game.uss?fileID=7433441132597879392&amp;guid=31af763db3aa3407f89b1fe2cbc4a3a3&amp;type=3#In Game" />
+    <ui:VisualElement name="Stats" style="flex-grow: 1; align-items: flex-end; align-self: flex-end;">
+        <ui:VisualElement class="stats" style="flex-grow: 1; flex-direction: row;">
+            <ui:Label text="Highest Level Reached:" class="stats" />
+            <ui:Label text="0" name="Highest_Level" class="stats" />
+        </ui:VisualElement>
+        <ui:VisualElement class="stats" style="flex-grow: 1; flex-direction: row;">
+            <ui:Label text="Average Time Spent Per Level:" class="stats" />
+            <ui:Label text="000" name="Average_Time" class="stats" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

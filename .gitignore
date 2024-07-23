@@ -10,6 +10,16 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 
+# Samples
+Assets/Samples
+Assets/SceneDependencyCache
+
+# Rider
+.idea
+
+# Mac system files
+*.DS_Store
+
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/

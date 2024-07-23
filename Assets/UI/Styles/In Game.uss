@@ -1,0 +1,76 @@
+Label {
+    transition-duration: 1s;
+    font-size: 24px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    -unity-font-definition: url("project://database/Assets/Fonts/ShareTechMono-Regular.ttf?fileID=12800000&guid=5543eb007fd7b47e7926cbe052df726c&type=3#ShareTechMono-Regular");
+    -unity-text-outline-width: 1px;
+}
+
+#Match_Info.out {
+    opacity: 0;
+    transition-property: opacity, display;
+    transition-delay: 0s, 1s;
+    transition-duration: 1s, 0s;
+}
+
+#Match_Info {
+    transition-property: opacity, display;
+    opacity: 1;
+    transition-duration: 1s, 0s;
+    transition-delay: 0s, 0s;
+}
+
+.rounded {
+    border-left-color: rgb(53, 53, 53);
+    border-right-color: rgb(53, 53, 53);
+    border-top-color: rgb(53, 53, 53);
+    border-bottom-color: rgb(53, 53, 53);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+Button {
+    font-size: 18px;
+    -unity-font-definition: url("project://database/Assets/Fonts/ShareTechMono-Regular.ttf?fileID=12800000&guid=5543eb007fd7b47e7926cbe052df726c&type=3#ShareTechMono-Regular");
+    color: rgb(255, 255, 255);
+    -unity-text-outline-color: rgb(63, 63, 63);
+    -unity-font-style: normal;
+}
+
+Button.rounded:active {
+    background-color: rgb(48, 48, 48);
+}
+
+Button.failure {
+    background-color: rgb(255, 95, 95);
+}
+
+Button.success {
+    background-color: rgb(107, 255, 133);
+    color: rgb(27, 27, 27);
+}
+
+Label.success {
+    color: rgb(27, 27, 27);
+}
+
+Label.stats {
+    font-size: 18px;
+}
+
+VisualElement.stats {
+    max-height: 40px;
+    opacity: 0;
+    transition-duration: 2s;
+}
+
+VisualElement.in {
+    opacity: 1;
+}

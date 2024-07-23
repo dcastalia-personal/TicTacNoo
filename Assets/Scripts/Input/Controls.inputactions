@@ -1,0 +1,34 @@
+{
+    "name": "Controls",
+    "maps": [
+        {
+            "name": "default",
+            "id": "516af3e2-d54a-4f88-a8d6-9c2eead57fbd",
+            "actions": [
+                {
+                    "name": "tap",
+                    "type": "Button",
+                    "id": "c4cac1b4-d997-41d3-bbb3-a129eafe0c86",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "32492d7f-fe36-47c6-ac9d-a7229747bc4e",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "tap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

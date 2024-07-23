@@ -1,0 +1,14 @@
+Label.in {
+    opacity: 1;
+}
+
+Label {
+    font-size: 24px;
+    transition-duration: 2s;
+    opacity: 0;
+    -unity-font-definition: url("project://database/Assets/Fonts/ShareTechMono-Regular.ttf?fileID=12800000&guid=5543eb007fd7b47e7926cbe052df726c&type=3#ShareTechMono-Regular");
+    color: rgb(231, 231, 231);
+    -unity-text-align: upper-center;
+    max-width: 500px;
+    white-space: normal;
+}

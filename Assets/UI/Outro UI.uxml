@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/Intro.uss?fileID=7433441132597879392&amp;guid=ca7c2e10b69374c38bfa23b4a7d4a9a3&amp;type=3#Intro" />
+    <ui:VisualElement name="Stories" style="flex-grow: 1; align-items: center; transition-duration: 2s; max-width: 500px; margin-top: 50px; margin-right: 50px; margin-bottom: 50px; margin-left: 50px; align-self: center; -unity-text-align: middle-left;">
+        <ui:Label text="Late at night one Sunday, you connect the final &lt;size=18&gt;DOTS&lt;/size&gt; and exclaim, &lt;color=orange&gt;&quot;Eureka!&quot;&lt;/color&gt;" name="Story_0" />
+        <ui:Label text="&quot;I have formulated the &lt;color=orange&gt;Turbo Particle&lt;/color&gt;.&quot;" name="Story_1" />
+        <ui:Label text="Congratulations are given.  Champagne is drunk.  &quot;Good thing you solved it in a &lt;color=orange&gt;simulation&lt;/color&gt;,&quot; they say, so you know it&apos;s &lt;color=red&gt;safe&lt;/color&gt; in real life." name="Story_2" />
+        <ui:Label text="&quot;Thanks for playing,&quot; says the universe, as you flip the real switch." name="Story_3" />
+        <ui:Label text="The End" name="Story_4" style="transition-duration: 4s;" />
+    </ui:VisualElement>
+</ui:UXML>

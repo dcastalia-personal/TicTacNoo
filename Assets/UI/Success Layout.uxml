@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/In%20Game.uss?fileID=7433441132597879392&amp;guid=31af763db3aa3407f89b1fe2cbc4a3a3&amp;type=3#In Game" />
+    <ui:VisualElement name="Success_Panel" class="rounded" style="flex-grow: 0; height: 100px; transition-property: opacity; transition-duration: 1s; width: 300px; align-self: center; top: 5%;">
+        <ui:VisualElement style="flex-grow: 0;">
+            <ui:Label text="Simulation Unstuck" class="success" style="align-items: center; align-self: center;" />
+        </ui:VisualElement>
+        <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+            <ui:Button text="Continue" name="Continue_Button" class="rounded success" style="flex-grow: 1;" />
+            <ui:Button text="Abort" name="Abort_Button" class="rounded success" style="flex-grow: 1;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

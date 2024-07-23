@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/Intro.uss?fileID=7433441132597879392&amp;guid=ca7c2e10b69374c38bfa23b4a7d4a9a3&amp;type=3#Intro" />
+    <ui:VisualElement name="Stories" style="flex-grow: 1; align-items: center; transition-duration: 2s; max-width: 500px; margin-top: 50px; margin-right: 50px; margin-bottom: 50px; margin-left: 50px; align-self: center; -unity-text-align: middle-left;">
+        <ui:Label text="Our lab is on the verge of producing the mythical &lt;color=orange&gt;Turbo Particle&lt;/color&gt; using antithetical techniques." name="Story_0" />
+        <ui:Label text="There is a &lt;size=18&gt;possibility&lt;/size&gt; that, if we are successful, its creation will produce a black hole." name="Story_1" />
+        <ui:Label text="You will avoid that through the use of a &lt;color=orange&gt;simulation&lt;/color&gt;, we hope." name="Story_2" />
+        <ui:Label text="Should you get &lt;color=orange&gt;stuck&lt;/color&gt;, take heart that it is probably for the best." name="Story_3" />
+        <ui:Label text="And yet..." name="Story_4" style="transition-duration: 4s;" />
+    </ui:VisualElement>
+</ui:UXML>

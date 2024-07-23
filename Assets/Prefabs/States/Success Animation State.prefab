@@ -1,0 +1,164 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1800649642364202012
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8672070922273022410}
+  - component: {fileID: 6095001344117645420}
+  - component: {fileID: 3951767132587480548}
+  - component: {fileID: -2515998457566270742}
+  m_Layer: 0
+  m_Name: Success Animation State
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8672070922273022410
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1800649642364202012}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1420388387763072536}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6095001344117645420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1800649642364202012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 141343be6a43542afa4d0b87858a46ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startMoveSpeed: 1
+  acceleration: 4
+  startRotSpeed: 0.1
+  angAcceleration: 2
+  flareStartTime: 1
+  flareDuration: 1
+  postFlareDuration: 1
+  flare: {fileID: 1800853923272422562}
+  flareEasing: {fileID: 469610154951111980, guid: e40b3125d32df4d01ada3c52dc4a7c42, type: 3}
+--- !u!114 &3951767132587480548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1800649642364202012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79d77c0fbd93d4936a4062315f2ff2c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-2515998457566270742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1800649642364202012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea6ee4d07fb024d7fb8d8d0a70d0255f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1001 &6979178376514513856
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 8672070922273022410}
+    m_Modifications:
+    - target: {fileID: 8317372768107169240, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8317372768107169240, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8317372768107169240, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8317372768107169240, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 8317372768107169240, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 8317372768107169240, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8317372768107169240, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8317372768107169240, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 8317372768107169240, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8317372768107169240, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8657869960199626594, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+      propertyPath: m_Name
+      value: Starburst
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8657869960199626594, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4688031151237657482}
+  m_SourcePrefab: {fileID: 100100000, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+--- !u!4 &1420388387763072536 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8317372768107169240, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+  m_PrefabInstance: {fileID: 6979178376514513856}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1800853923272422562 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8657869960199626594, guid: 9b3cc711c581a4646bc4abace5512ef4, type: 3}
+  m_PrefabInstance: {fileID: 6979178376514513856}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4688031151237657482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1800853923272422562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0376b2c0c6f9449218e5f3d8eac19de6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
