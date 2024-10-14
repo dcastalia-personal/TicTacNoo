@@ -47,6 +47,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   failureUIPrefab: {fileID: 9197481963319205126, guid: 0fd9df2861fda44f98b76fc28e920389, type: 3}
+  failureStabPrefab: {fileID: 4586654527562981158, guid: 0c476e4c6e94a40bf817c76aee0cce3d, type: 3}
+  failureLoopPrefab: {fileID: 4586654527562981158, guid: 6e605550747b2466b8b39d49c1a662f4, type: 3}
 --- !u!114 &4618745598302260416
 MonoBehaviour:
   m_ObjectHideFlags: 0

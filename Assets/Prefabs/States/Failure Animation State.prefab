@@ -52,6 +52,7 @@ MonoBehaviour:
   angAcceleration: 1
   shapesOutDuration: 2
   nextLevelStartDuration: 2
+  audioOut: {fileID: 4586654527562981158, guid: d45d162d69c6249acb13058832a09cd5, type: 3}
 --- !u!114 &4618745598302260416
 MonoBehaviour:
   m_ObjectHideFlags: 0

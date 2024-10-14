@@ -3,11 +3,12 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Scenes;
 using Unity.Transforms;
 using UnityEngine;
 using static Unity.Entities.SystemAPI;
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateInGroup(typeof(InitializationSystemGroup))] [UpdateAfter(typeof(SceneSystemGroup))]
 public partial struct InitFollowPathSys : ISystem {
 	BufferLookup<PathData> pathLookup;
 	

@@ -4,12 +4,13 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Rendering;
+using Unity.Scenes;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static Unity.Entities.SystemAPI;
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateInGroup(typeof(InitializationSystemGroup))] [UpdateAfter(typeof(SceneSystemGroup))]
 public partial struct InitFailureAckSys : ISystem {
     EntityQuery query;
 
@@ -19,11 +20,12 @@ public partial struct InitFailureAckSys : ISystem {
     }
 
     public void OnUpdate( ref SystemState state ) {
-        var ui = GetSingleton<UIData>();
+        var ui = GetSingleton<InGameUIData>();
         var gameState = GetSingleton<GameStateData>();
         var gameStateEntity = GetSingletonEntity<GameStateData>();
         var failureAck = GetSingleton<FailureAckData>();
         var failurePanel = failureAck.failureUIPrefab.Value.Instantiate();
+        var levelAudio = GetSingleton<LevelAudioData>();
         ui.document.Value.rootVisualElement.Add( failurePanel );
 		
         var restartButton = failurePanel.Q<Button>( "Restart_Button" );
@@ -33,24 +35,38 @@ public partial struct InitFailureAckSys : ISystem {
         var failureAnimationPrefab = gameState.failureAnimationPrefab;
 
         var entityManager = state.EntityManager;
-		
+
         restartButton.clicked += () => {
             // unload current scene and reload
+            entityManager.SetComponentEnabled<FadeOut>( failureAck.failureLoopInstance, true );
+            entityManager.SetComponentEnabled<FadeOut>( levelAudio.musicInstance, true );
             entityManager.DestroyEntity( failureAckEntity );
             entityManager.Instantiate( failureAnimationPrefab );
             ui.document.Value.rootVisualElement.Remove( failurePanel );
-            gameState.nextLevel = gameState.curLevel;
+            gameState.nextLevel = gameState.curLevelIndex;
             entityManager.SetComponentData( gameStateEntity, gameState );
+            
+            var matchInfoDisplay = ui.document.Value.rootVisualElement.Q<VisualElement>( "Match_Info" );
+            matchInfoDisplay.AddToClassList( "out" );
         };
 		
         abortButton.clicked += () => {
             // unload current scene and load main menu
+            entityManager.SetComponentEnabled<FadeOut>( failureAck.failureLoopInstance, true );
+            entityManager.SetComponentEnabled<FadeOut>( levelAudio.musicInstance, true );
             entityManager.DestroyEntity( failureAckEntity );
             entityManager.Instantiate( failureAnimationPrefab );
             ui.document.Value.rootVisualElement.Remove( failurePanel );
-            gameState.nextLevel = 1; // main menu
+            gameState.nextLevel = 0; // main menu
             entityManager.SetComponentData( gameStateEntity, gameState );
+            
+            var matchInfoDisplay = ui.document.Value.rootVisualElement.Q<VisualElement>( "Match_Info" );
+            matchInfoDisplay.AddToClassList( "out" );
         };
+
+        entityManager.Instantiate( failureAck.failureStabPrefab );
+        failureAck.failureLoopInstance = entityManager.Instantiate( failureAck.failureLoopPrefab );
+        entityManager.SetComponentData( failureAckEntity, failureAck );
     }
 }
 
@@ -66,8 +82,11 @@ public partial struct TeardownFailureAckSys : ISystem {
     public void OnUpdate( ref SystemState state ) {
         if( query.IsEmpty ) return;
         
-        var ui = GetSingleton<UIData>();
+        var ui = GetSingleton<InGameUIData>();
         ui.document.Value.rootVisualElement.Q<VisualElement>( "Failure_Panel" ).RemoveFromHierarchy();
+
+        var failureAck = GetSingleton<FailureAckData>();
+        state.EntityManager.SetComponentEnabled<FadeOut>( failureAck.failureLoopInstance, true );
     }
 }
 
@@ -86,13 +105,15 @@ public partial struct FailureAnimationSys : ISystem {
 
         if( animationData.ValueRO.timeElapsed == 0f ) {
             var targetColorData = GetComponent<TargetColorData>( cameraEntity );
-            targetColorData.baseColor = targetColorData.defaultColor;
+            targetColorData.baseColor = GetSingleton<GameColorData>().neutralBackground;
             SetComponent( cameraEntity, targetColorData );
             SetComponentEnabled<TargetColorData>( cameraEntity, true );
             
             foreach( var mass in Query<RefRW<PhysicsMass>>() ) {
                 mass.ValueRW = PhysicsMass.CreateKinematic( MassProperties.UnitSphere );
             }
+
+            state.EntityManager.Instantiate( animationData.ValueRO.audioOut );
         }
 
         if( animationData.ValueRO.timeElapsed < animationData.ValueRO.shapesOutDuration ) {

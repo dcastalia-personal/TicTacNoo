@@ -4,6 +4,7 @@ using UnityEngine;
 public class ScaleOnCurve : MonoBehaviour {
 	public SharedCurve curve;
 	public float speed;
+	public float multiplier = 1f;
 
 	public FinishMode finishMode;
 
@@ -17,7 +18,7 @@ public class ScaleOnCurve : MonoBehaviour {
 			var blobAssetRef = CurveBlob.CreateCurveBlob( auth.curve );
 			AddBlobAsset( ref blobAssetRef, out _ );
 			
-			AddComponent( self, new ScaleOnCurveData { curve = blobAssetRef, speed = auth.speed, finishMode = auth.finishMode} );
+			AddComponent( self, new ScaleOnCurveData { curve = blobAssetRef, speed = auth.speed, finishMode = auth.finishMode, multiplier = auth.multiplier } );
 			SetComponentEnabled<ScaleOnCurveData>( self, false );
 		}
 	}
@@ -26,6 +27,7 @@ public class ScaleOnCurve : MonoBehaviour {
 public struct ScaleOnCurveData : IComponentData, IEnableableComponent {
 	public BlobAssetReference<CurveBlob> curve;
 	public float speed;
+	public float multiplier;
 
 	public float elapsedTime;
 

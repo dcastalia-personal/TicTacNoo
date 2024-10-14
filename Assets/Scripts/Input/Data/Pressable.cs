@@ -9,7 +9,8 @@ public class Pressable : MonoBehaviour {
 		public override void Bake( Pressable auth ) {
 			var self = GetEntity( TransformUsageFlags.None );
 			AddComponent( self, new Pressed{} ); SetComponentEnabled<Pressed>( self, false );
-			AddComponent( self, new Released{} ); SetComponentEnabled<Pressed>( self, false );
+			AddComponent( self, new Released{} ); SetComponentEnabled<Released>( self, false );
+			AddComponent( self, new Tapped{} ); SetComponentEnabled<Tapped>( self, false );
 			AddComponent( self, new Held{} ); SetComponentEnabled<Held>( self, false );
 		}
 	}
@@ -20,6 +21,10 @@ public struct Pressed : IComponentData, IEnableableComponent {
 }
 
 public struct Released : IComponentData, IEnableableComponent {
+	public float3 worldPos;
+}
+
+public struct Tapped : IComponentData, IEnableableComponent {
 	public float3 worldPos;
 }
 

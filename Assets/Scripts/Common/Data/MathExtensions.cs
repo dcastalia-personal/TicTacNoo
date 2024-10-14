@@ -5,6 +5,9 @@ using UnityEngine;
 
 [BurstCompile] public static class MathExtensions {
 	
+	[BurstCompile]
+	public static float Angle( in float3 from, in float3 to ) => math.acos( math.clamp( math.dot( from, to ), -1f, 1f ) );
+	
 	[BurstCompile] public static float Distance( this in NativeArray<float3> pts ) {
 		float distance = 0f;
 
@@ -26,7 +29,6 @@ using UnityEngine;
 	}
 
 	[BurstCompile] public static void GetClosestPt( this in NativeArray<float3> pts, in float3 inPt, out float3 outPt, out int outIndex ) {
-		// Debug.Log( $"Looking at {pts.Length} based on in position {inPt}" );
 		float closestDistSq = float.MaxValue;
 		outIndex = 0;
 
@@ -35,15 +37,24 @@ using UnityEngine;
 			var distSq = math.distancesq( inPt, pointCandidate );
 
 			if( distSq < closestDistSq ) {
-				// Debug.Log( $"Dist {distSq} from {inPt} to pt index {index} at {pts[index]} is less than the current minimum of {closestDistSq}, so setting out index to {index}" );
 				closestDistSq = distSq;
 				outIndex = index;
 			}
-			// else {
-			// 	Debug.Log( $"Dist {distSq} from {inPt} to pt index {index} at {pts[index]} is NOT less than the current minimum of {closestDistSq}" );
-			// }
 		}
 
 		outPt = pts[outIndex];
 	}
+	
+	// public static float3 MultiplyPoint( in float4x4 matrix, in float3 point ) {
+	// 	return math.mul( matrix, new float4( point, 1 ) ).xyz;
+	// }
+	//
+	// [BurstCompile] public static float3 ScreenToWorldPoint( in float4x4 projectionMatrix, in float4x4 worldToCameraMatrix, in float4x4 localToWorldMatrix, in float3 screenPos ) {
+	// 	var worldToScreen = math.mul( math.mul( projectionMatrix, worldToCameraMatrix ), localToWorldMatrix );
+	// 	var screenToWorld = math.inverse( math.mul( projectionMatrix, worldToCameraMatrix ) );
+	// 	var depth = MultiplyPoint( worldToScreen, screenPos ).z;
+	// 	var viewPos = new float3( screenPos.x / Screen.width, screenPos.y / Screen.height, (depth + 1f) / 2f );
+	// 	var clipPos = viewPos * 2f - new float3(1);
+	// 	return MultiplyPoint( screenToWorld, clipPos );
+	// }
 }

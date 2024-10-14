@@ -1,11 +1,12 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Scenes;
 using Unity.Transforms;
 using UnityEngine;
 using static Unity.Entities.SystemAPI;
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateInGroup(typeof(InitializationSystemGroup))] [UpdateAfter(typeof(SceneSystemGroup))]
 public partial struct InitRemoveParentSys : ISystem {
 	EntityQuery query;
 

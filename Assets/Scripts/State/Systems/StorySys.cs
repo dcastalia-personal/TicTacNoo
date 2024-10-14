@@ -1,11 +1,14 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Scenes;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using static Unity.Entities.SystemAPI;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
+[UpdateInGroup(typeof(InitializationSystemGroup))] [UpdateAfter(typeof(SceneSystemGroup))] [UpdateAfter(typeof(InitAssociatedGOSys))]
 public partial struct InitStorySys : ISystem {
 	EntityQuery query;
 
@@ -21,8 +24,10 @@ public partial struct InitStorySys : ISystem {
 		storyAnim.ValueRW.storyUI.Value = storyUI;
 		storyAnim.ValueRW.stages = storyUI.rootVisualElement.Q<VisualElement>( "Stories" ).childCount;
 
-		storyUI.rootVisualElement.Q<VisualElement>( "Story_0" ).AddToClassList( "in" );
+		storyUI.rootVisualElement.Q<VisualElement>( "Story_0" ).SwitchStyleOnFirstFrame( "", "in" );
 		storyAnim.ValueRW.curStage = 1;
+
+		storyAnim.ValueRW.musicInstance = state.EntityManager.Instantiate( storyAnim.ValueRO.musicPrefab );
 	}
 }
 
@@ -59,6 +64,8 @@ public partial struct AdvanceStorySys : ISystem {
 			gameState.ValueRW.nextLevel = storyAnim.ValueRO.nextLevel;
 
 			var em = state.EntityManager;
+			em.SetComponentEnabled<FadeOut>( storyAnim.ValueRO.musicInstance, true );
+			
 			var firstLabel = storyAnim.ValueRO.storyUI.Value.rootVisualElement.Q<Label>( "Story_0" );
 			var lastLabel = storyAnim.ValueRO.storyUI.Value.rootVisualElement.Q<Label>( $"Story_{storyAnim.ValueRO.stages - 1}" );
 

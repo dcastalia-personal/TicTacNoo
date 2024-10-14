@@ -1,66 +1,79 @@
 using System.Globalization;
+using System.Linq;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Scenes;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static Unity.Entities.SystemAPI;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-public partial struct InitStatsSys : ISystem {
+public partial struct LoadStatsData : ISystem {
 	EntityQuery query;
 
 	[BurstCompile] public void OnCreate( ref SystemState state ) {
-		query = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<StatsData, RequireInitData>() );
+		query = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<StatData, LoadTag>() );
 		state.RequireForUpdate( query );
 	}
 
 	public void OnUpdate( ref SystemState state ) {
-		var stats = GetSingletonRW<StatsData>();
+		var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+		var ecb = ecbSingleton.CreateCommandBuffer( state.WorldUnmanaged );
+		
+		foreach( var (_, self) in Query<LoadTag>().WithAll<StatData>().WithEntityAccess() ) {
+			var json = PlayerPrefs.GetString( "Save", "" );
+      var loaded = JsonUtility.FromJson<StatsData>( json );
+      if( loaded == null ) continue;
 
-		stats.ValueRW.highestLevelAchieved = PlayerPrefs.GetInt( "Highest Level", 0 );
-		stats.ValueRW.averageSecondsToCompleteLevel = PlayerPrefs.GetFloat( "Average Seconds", 0f );
-	}
-}
+      var stats = GetBuffer<StatData>( self );
 
-[UpdateBefore(typeof(SaveStatsSys))]
-public partial struct UpdateCurrentLevel : ISystem {
-	EntityQuery query;
-
-	[BurstCompile] public void OnCreate( ref SystemState state ) {
-		query = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<GameStateData, SwitchLevel>() );
-		state.RequireForUpdate( query );
-	}
-
-	[BurstCompile] public void OnUpdate( ref SystemState state ) {
-		var gameState = GetSingleton<GameStateData>();
-		var stats = GetSingletonRW<StatsData>();
-
-		if( gameState.nextLevel > stats.ValueRW.highestLevelAchieved ) {
-			stats.ValueRW.highestLevelAchieved = gameState.nextLevel - 2; // don't count the first two levels
-			
-			if( TryGetSingleton( out LevelTimerData timer ) ) {
-				stats.ValueRW.totalSecondsOnRun += timer.time;
-				stats.ValueRW.averageSecondsToCompleteLevel = stats.ValueRW.totalSecondsOnRun / stats.ValueRW.highestLevelAchieved;
-			}
+      for( int index = 0; index < stats.Length; index++ ) {
+	      if( loaded.elements.Length > index ) stats[ index ] = loaded.elements[ index ];
+      }
 		}
+
+		ecb.RemoveComponent<LoadTag>( query, EntityQueryCaptureMode.AtPlayback );
 	}
 }
 
 [UpdateBefore(typeof(SwitchLevelSys))]
 public partial struct SaveStatsSys : ISystem {
 	EntityQuery query;
+	EntityQuery victoryEnabledQuery;
 
 	[BurstCompile] public void OnCreate( ref SystemState state ) {
 		query = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<GameStateData, SwitchLevel>() );
 		state.RequireForUpdate( query );
+		
+		victoryEnabledQuery = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<VictoryEnabled>() );
 	}
 
 	public void OnUpdate( ref SystemState state ) {
-		var stats = GetSingleton<StatsData>();
+		var statsBuf = GetSingletonBuffer<StatData>();
+		var gameState = GetSingleton<GameStateData>();
 
-		PlayerPrefs.SetInt( "Highest Level", stats.highestLevelAchieved );
-		PlayerPrefs.SetFloat( "Average Seconds", stats.averageSecondsToCompleteLevel );
+		// assign current lowest time
+		if( TryGetSingletonRW( out RefRW<LevelTimerData> timer ) ) {
+			var currentStats = statsBuf[ gameState.curLevelIndex ];
+
+			var secondsToRecord = timer.ValueRO.value;
+			if( victoryEnabledQuery.IsEmpty ) secondsToRecord = float.MaxValue;
+
+			if( currentStats.lowestTime == 0f || secondsToRecord < currentStats.lowestTime ) {
+				statsBuf[ gameState.curLevelIndex ] = new StatData { lowestTime = secondsToRecord };
+			}
+			
+			// Debug.Log( $"Time for level {gameState.curLevelIndex} is {timer.ValueRO.value}" );
+
+			timer.ValueRW.value = 0f;
+		}
+		
+		var saved = new StatsData { elements = statsBuf.ToNativeArray( Allocator.Temp ).ToArray() };
+		var json = JsonUtility.ToJson( saved );
+
+		PlayerPrefs.SetString( "Save", json );
 	}
 }
 
@@ -75,61 +88,126 @@ public partial struct CountTimeThisLevel : ISystem {
 	}
 
 	[BurstCompile] public void OnUpdate( ref SystemState state ) {
-		var levelTimer = GetSingletonRW<LevelTimerData>();
-
-		levelTimer.ValueRW.time += SystemAPI.Time.DeltaTime;
-	}
-}
-
-public partial struct MenuStatsSys : ISystem {
-	EntityQuery query;
-
-	[BurstCompile] public void OnCreate( ref SystemState state ) {
-		query = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<MenuAnimationData>() );
-		state.RequireForUpdate( query );
-	}
-
-	public void OnUpdate( ref SystemState state ) {
-		var menuAnimation = GetSingletonRW<MenuAnimationData>();
-
-		if( !menuAnimation.ValueRO.displayedStats && menuAnimation.ValueRO.elapsedTime > menuAnimation.ValueRO.statsInDelay ) {
-			var stats = GetSingleton<StatsData>();
-			
-			var menuUIObj = GameObject.Find( "Menu UI" );
-			var menuUI = menuUIObj.GetComponent<UIDocument>();
-			var statsLayout = menuUI.rootVisualElement.Q( "Stats" );
-
-			var highestLevelLabel = menuUI.rootVisualElement.Q<Label>( "Highest_Level" );
-			highestLevelLabel.text = stats.highestLevelAchieved.ToString();
-			
-			var averageTimeLabel = menuUI.rootVisualElement.Q<Label>( "Average_Time" );
-			averageTimeLabel.text = ((int)(stats.averageSecondsToCompleteLevel * 100f) / 100f).ToString( CultureInfo.CurrentCulture );
-
-			foreach( var statItem in statsLayout.Children() ) {
-				statItem.AddToClassList( "in" );
-			}
+		foreach( var levelTimerData in Query<RefRW<LevelTimerData>>() ) {
+			levelTimerData.ValueRW.value += SystemAPI.Time.DeltaTime;
 		}
-
-		menuAnimation.ValueRW.elapsedTime += SystemAPI.Time.DeltaTime;
 	}
 }
 
-[UpdateBefore(typeof(ExitMenuSys))]
-public partial struct TeardownMenuStatsSys : ISystem {
+// Display
+
+[UpdateInGroup(typeof(InitializationSystemGroup)), UpdateAfter(typeof(InitAssociatedGOSys)), UpdateAfter(typeof(InitLevelAudioSys))]
+public partial struct InitDisplayStatsSys : ISystem {
 	EntityQuery query;
 
 	[BurstCompile] public void OnCreate( ref SystemState state ) {
-		query = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<ExitMenuData>() );
+		query = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<StatsDisplayData, RequireInitData>() );
 		state.RequireForUpdate( query );
 	}
 
 	public void OnUpdate( ref SystemState state ) {
-		var menuUIObj = GameObject.Find( "Menu UI" );
-		var menuUI = menuUIObj.GetComponent<UIDocument>();
-		var statsLayout = menuUI.rootVisualElement.Q( "Stats" );
-		
-		foreach( var statItem in statsLayout.Children() ) {
-			statItem.RemoveFromClassList( "in" );
+		foreach( var (statsDisplayData, self) in Query<RefRW<StatsDisplayData>>().WithAll<RequireInitData>().WithEntityAccess() ) {
+			var statsBufEntity = GetSingletonEntity<StatData>();
+			var statsBuf = GetSingletonBuffer<StatData>();
+			var em = state.EntityManager;
+			
+			var statsUIProxy = GameObject.Find( "Stats UI" );
+			var statsDoc = statsUIProxy.GetComponent<UIDocument>();
+			statsDisplayData.ValueRW.document = new UnityObjectRef<UIDocument> { Value = statsDoc };
+
+			var parentContainer = statsDoc.rootVisualElement.Q<VisualElement>( "Parent" );
+			parentContainer.SwitchStyleOnFirstFrame( "out", "in" );
+
+			var listContainer = statsDoc.rootVisualElement.Q<ScrollView>( "Levels_List" );
+
+			var gameStateEntity = GetSingletonEntity<GameStateData>();
+			var gameState = GetComponent<GameStateData>( gameStateEntity );
+			var levelsBuf = GetBuffer<Level>( gameStateEntity );
+
+			int displayedIndex = 1;
+			for( int sceneIndex = 0; sceneIndex < statsBuf.Length; sceneIndex++ ) {
+				var timeTaken = statsBuf[ sceneIndex ].lowestTime;
+				if( timeTaken == 0f ) continue;
+				
+				var entry = statsDisplayData.ValueRO.statsEntryPrefab.Value.Instantiate();
+				
+				var number = entry.Q<Label>( "Number_Label" );
+				number.text = $"{displayedIndex.ToString()}. {levelsBuf[sceneIndex].name}";
+				displayedIndex++;
+
+				var timeLabel = entry.Q<Label>( "Time_Label" );
+				var timeTakenText = $"{((int)timeTaken).ToString( CultureInfo.InvariantCulture )}s";
+				if( timeTakenText == "-1s" ) timeTakenText = "-";
+				timeLabel.text = timeTakenText;
+
+				var bestTimeThisLevel = levelsBuf[ sceneIndex ].bestTime;
+				for( int timingIndex = 1; timingIndex < GameStateData.maxNumStars; timingIndex++ ) {
+					var starIndex = GameStateData.maxNumStars - timingIndex;
+					var timeForThisStar = bestTimeThisLevel * timingIndex;
+					
+					entry.Q<VisualElement>( $"Star{starIndex}" ).visible = timeTaken <= timeForThisStar;
+				}
+
+				var replayButton = entry.Q<Button>( "Load_Button" );
+				int levelToLoad = sceneIndex;
+				replayButton.clicked += () => {
+					gameState.nextLevel = levelToLoad;
+					em.SetComponentData( gameStateEntity, gameState );
+
+					parentContainer.RemoveFromClassList( "in" );
+					parentContainer.AddToClassList( "out" );
+					parentContainer.RegisterCallbackOnce<TransitionEndEvent>( evt => {
+						em.AddComponent<SwitchLevel>( gameStateEntity );
+					} );
+					
+					var statsDisplayQuery = em.CreateEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<StatsDisplayData>() );
+					var statsDisplayDataOnDemand = statsDisplayQuery.GetSingleton<StatsDisplayData>();
+					em.SetComponentEnabled<FadeOut>( statsDisplayDataOnDemand.musicInstance, true );
+				};
+
+				listContainer.contentContainer.Add( entry );
+			}
+
+			var resetButton = statsDoc.rootVisualElement.Q<Button>( "Reset_Button" );
+			var exitButton = statsDoc.rootVisualElement.Q<Button>( "Exit_Button" );
+
+			resetButton.clicked += () => {
+				var curStatsBuf = em.GetBuffer<StatData>( statsBufEntity );
+				for( int index = 0; index < curStatsBuf.Length; index++ ) {
+					curStatsBuf[ index ] = new StatData {};
+				}
+
+				listContainer.contentContainer.Clear();
+
+				Object.Destroy( statsDoc.gameObject );
+				em.AddComponent<RequireInitData>( self );
+				
+				var statsDisplayQuery = em.CreateEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<StatsDisplayData>() );
+				var statsDisplayDataOnDemand = statsDisplayQuery.GetSingleton<StatsDisplayData>();
+				em.SetComponentEnabled<FadeOut>( statsDisplayDataOnDemand.musicInstance, true );
+			};
+
+			exitButton.clicked += () => {
+				gameState.nextLevel = 0;
+				em.SetComponentData( gameStateEntity, gameState );
+				
+				parentContainer.RemoveFromClassList( "in" );
+				parentContainer.AddToClassList( "out" );
+				parentContainer.RegisterCallbackOnce<TransitionEndEvent>( evt => {
+					em.AddComponent<SwitchLevel>( gameStateEntity );
+				} );
+
+				var statsDisplayQuery = em.CreateEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<StatsDisplayData>() );
+				var statsDisplayDataOnDemand = statsDisplayQuery.GetSingleton<StatsDisplayData>();
+				em.SetComponentEnabled<FadeOut>( statsDisplayDataOnDemand.musicInstance, true );
+			};
+
+			var ecbSingleton = GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
+			var ecb = ecbSingleton.CreateCommandBuffer( state.WorldUnmanaged );
+
+			var statsDisplayDataCopy = statsDisplayData.ValueRO;
+			statsDisplayDataCopy.musicInstance = ecb.Instantiate( statsDisplayData.ValueRO.music );
+			ecb.SetComponent( self, statsDisplayDataCopy );
 		}
 	}
 }

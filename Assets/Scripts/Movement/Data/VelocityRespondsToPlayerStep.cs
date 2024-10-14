@@ -16,4 +16,6 @@ public class VelocityRespondsToPlayerStep : MonoBehaviour {
 public struct VelocityRespondsToPlayerStepData : IComponentData {
 	public float3 linearVelocity;
 	public float3 angularVelocity;
+	public float inverseMass;
+	public float3 inverseInertia;
 }

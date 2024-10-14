@@ -2,9 +2,29 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Scenes;
+using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.UIElements;
 using static Unity.Entities.SystemAPI;
+
+[UpdateInGroup( typeof(InitializationSystemGroup) )] [UpdateAfter( typeof(SceneSystemGroup) )]
+public partial struct InitMenuSys : ISystem {
+	EntityQuery query;
+
+	[BurstCompile] public void OnCreate( ref SystemState state ) {
+		query = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<MenuAnimationData, RequireInitData>() );
+		state.RequireForUpdate( query );
+	}
+
+	[BurstCompile] public void OnUpdate( ref SystemState state ) {
+		var menuAnimEntity = GetSingletonEntity<MenuAnimationData>();
+		var menuAnimData = GetComponent<MenuAnimationData>( menuAnimEntity );
+		var ecbSingleton = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
+		var ecb = ecbSingleton.CreateCommandBuffer( state.WorldUnmanaged );
+
+		menuAnimData.musicInstance = ecb.Instantiate( menuAnimData.musicPrefab );
+		ecb.SetComponent( menuAnimEntity, menuAnimData );
+	}
+}
 
 [UpdateAfter(typeof(FollowSplineContinuouslySys))] [UpdateBefore(typeof(ClearFinishedFollowingSys))]
 public partial struct RefreshFlareSys : ISystem {
@@ -24,6 +44,11 @@ public partial struct RefreshFlareSys : ISystem {
 		existingFlareData.elapsedTime = 0f;
 		SetComponent( menuAnimData.flare, existingFlareData );
 		SetComponentEnabled<ScaleOnCurveData>( menuAnimData.flare, true );
+
+		var ecbSingleton = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
+		var ecb = ecbSingleton.CreateCommandBuffer( state.WorldUnmanaged );
+
+		ecb.Instantiate( menuAnimData.flareAudio );
 	}
 }
 
@@ -49,6 +74,12 @@ public partial struct ExitMenuSys : ISystem {
 		state.EntityManager.RemoveComponent<FollowContinuouslyData>( followingQuery ); // stop all the following objects from moving so that the end animation can take over
 		state.EntityManager.DestroyEntity( menuEntity );
 		state.EntityManager.Instantiate( menuData.outTransitionPrefab );
+
+		var ecbSingleton = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
+		var ecb = ecbSingleton.CreateCommandBuffer( state.WorldUnmanaged );
+		ecb.Instantiate( menuData.outAudio );
+
+		state.EntityManager.SetComponentEnabled<FadeOut>( menuData.musicInstance, true );
 	}
 }
 
@@ -56,7 +87,7 @@ public partial struct StartGameSys : ISystem {
 	EntityQuery pressedQuery;
 
 	[BurstCompile] public void OnCreate( ref SystemState state ) {
-		pressedQuery = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<StartGameButtonData, Pressed>() );
+		pressedQuery = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<LoadLevelButtonData, Pressed>() );
 		state.RequireForUpdate( pressedQuery );
 		state.RequireForUpdate<MenuAnimationData>();
 	}
@@ -64,9 +95,11 @@ public partial struct StartGameSys : ISystem {
 	[BurstCompile] public void OnUpdate( ref SystemState state ) {
 		if( pressedQuery.IsEmpty ) return;
 		
-		var gameState = GetSingletonRW<GameStateData>();
-		gameState.ValueRW.nextLevel = 2;
-
+		foreach( var (loadLevelButtonData, self) in Query<RefRO<LoadLevelButtonData>>().WithAll<Pressed>().WithEntityAccess() ) {
+			var gameState = GetSingletonRW<GameStateData>();
+			gameState.ValueRW.nextLevel = loadLevelButtonData.ValueRO.levelToLoad;
+		}
+		
 		var menuEntity = GetSingletonEntity<MenuAnimationData>();
 		state.EntityManager.AddComponent<ExitMenuData>( menuEntity );
 	}
@@ -77,7 +110,7 @@ public partial struct StartGameSysManaged : ISystem {
 	EntityQuery pressedQuery;
 
 	[BurstCompile] public void OnCreate( ref SystemState state ) {
-		pressedQuery = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<StartGameButtonData, Pressed>() );
+		pressedQuery = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<ClearSettingsButtonData, Pressed>() );
 		state.RequireForUpdate( pressedQuery );
 		state.RequireForUpdate<MenuAnimationData>();
 	}
@@ -99,13 +132,8 @@ public partial struct ExitGameSys : ISystem {
 		state.RequireForUpdate<MenuAnimationData>();
 	}
 
-	[BurstCompile] public void OnUpdate( ref SystemState state ) {
+	public void OnUpdate( ref SystemState state ) {
 		if( pressedQuery.IsEmpty ) return;
-		
-		var gameState = GetSingletonRW<GameStateData>();
-		gameState.ValueRW.nextLevel = -1;
-
-		var menuEntity = GetSingletonEntity<MenuAnimationData>();
-		state.EntityManager.AddComponent<ExitMenuData>( menuEntity );
+		Application.Quit();
 	}
 }

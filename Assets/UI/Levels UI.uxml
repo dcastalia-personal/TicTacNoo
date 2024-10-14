@@ -1,0 +1,24 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/Levels.uss?fileID=7433441132597879392&amp;guid=295fb4dd819fc4ff88a485beec237615&amp;type=3#Levels" />
+    <ui:VisualElement name="Parent" class="out" style="flex-grow: 1;">
+        <ui:Label text="Experiments in Progress" class="title" style="-unity-text-align: upper-center; padding-top: 0;" />
+        <ui:VisualElement style="flex-grow: 0; flex-direction: row; border-bottom-width: 2px; border-bottom-color: rgb(255, 255, 255); margin-right: 20px; margin-left: 20px; min-height: 32px;">
+            <ui:VisualElement class="leftColumn" style="flex-grow: 1;">
+                <ui:Label text="Name" />
+            </ui:VisualElement>
+            <ui:VisualElement class="midColumn" style="flex-grow: 1;">
+                <ui:Label text="Best Time" />
+            </ui:VisualElement>
+            <ui:VisualElement class="ratingColumn" style="flex-grow: 1;">
+                <ui:Label text="Rating" />
+            </ui:VisualElement>
+            <ui:VisualElement class="rightColumn" style="flex-grow: 1;" />
+        </ui:VisualElement>
+        <ui:ScrollView name="Levels_List" style="flex-grow: 1; margin-right: 20px; margin-left: 20px;" />
+        <ui:VisualElement style="flex-grow: 1; max-height: 50px; flex-direction: row; margin-bottom: 20px; margin-right: 20px; margin-left: 20px;">
+            <ui:Button text="Back" name="Exit_Button" class="load" />
+            <ui:VisualElement style="flex-grow: 1;" />
+            <ui:Button text="Reset" name="Reset_Button" class="load" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

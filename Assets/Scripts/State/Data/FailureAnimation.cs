@@ -9,6 +9,8 @@ public class FailureAnimation : MonoBehaviour {
 	public float shapesOutDuration;
 	public float nextLevelStartDuration;
 
+	public GameObject audioOut;
+
 	public class Baker : Baker<FailureAnimation> {
 
 		public override void Bake( FailureAnimation auth ) {
@@ -20,6 +22,7 @@ public class FailureAnimation : MonoBehaviour {
 				angAcceleration = auth.angAcceleration, 
 				shapesOutDuration = auth.shapesOutDuration,
 				nextLevelStartDuration = auth.nextLevelStartDuration,
+				audioOut = GetEntity( auth.audioOut, TransformUsageFlags.Dynamic ),
 			} );
 		}
 	}
@@ -33,4 +36,6 @@ public struct FailureAnimData : IComponentData {
 	public float rotSpeed; // in radians
 	public float acceleration;
 	public float angAcceleration;
+
+	public Entity audioOut;
 }

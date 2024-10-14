@@ -12,10 +12,9 @@ public class LevelColors : MonoBehaviour {
 			var self = GetEntity( TransformUsageFlags.None );
 			AddComponent( self, new LevelColorIndex() );
 
-			var colorsBuffer = AddBuffer<LevelColorData>( self );
-
+			var colorsBuffer = AddBuffer<LevelColorElem>( self );
 			foreach( var color in auth.colors ) {
-				colorsBuffer.Add( new LevelColorData { color = (Vector4)color.color, backgroundColor = (Vector4)color.backgroundColor, intensity = color.intensity } );
+				colorsBuffer.Add( new LevelColorElem { color = (Vector4)color.color, backgroundColor = (Vector4)color.backgroundColor, intensity = color.intensity, tone = GetEntity( color.tone, TransformUsageFlags.Dynamic ) } );
 			}
 		}
 	}
@@ -26,14 +25,16 @@ public class ColorWithIntensity {
 	public Color color;
 	public Color backgroundColor;
 	public float intensity;
+	public GameObject tone;
 }
 
-public struct LevelColorData : IBufferElementData {
+public struct LevelColorElem : IBufferElementData {
 	public float4 color;
 	public float4 backgroundColor;
 	public float intensity;
+	public Entity tone;
 }
 
 public struct LevelColorIndex : IComponentData {
-	public int value;
+	public int current;
 }

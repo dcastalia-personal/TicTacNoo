@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8562104608069024298}
   - component: {fileID: 6781031779635742190}
   - component: {fileID: 5704672833435513612}
+  - component: {fileID: 172650624098840634}
   m_Layer: 0
   m_Name: Menu Animation State
   m_TagString: Untagged
@@ -46,8 +47,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   flare: {fileID: 0}
-  outTransitionPrefab: {fileID: 0}
-  statsInDelay: 0
+  outTransitionPrefab: {fileID: 3343921748897419778, guid: a8f4ca39509b24933a8a1256aeaa5290, type: 3}
+  statsInDelay: 3
+  music: {fileID: 4586654527562981158, guid: 2554293a0c6aa48df89342e6ba04ddbf, type: 3}
+  outAudio: {fileID: 4586654527562981158, guid: d45d162d69c6249acb13058832a09cd5, type: 3}
+  flareAudio: {fileID: 4586654527562981158, guid: b8b022b128b944648a0edb17deda5ed1, type: 3}
 --- !u!114 &5704672833435513612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58,5 +62,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea6ee4d07fb024d7fb8d8d0a70d0255f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &172650624098840634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3918341725611313774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79d77c0fbd93d4936a4062315f2ff2c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

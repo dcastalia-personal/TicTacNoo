@@ -2,12 +2,13 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Scenes;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.Splines;
 using static Unity.Entities.SystemAPI;
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateInGroup(typeof(InitializationSystemGroup))] [UpdateAfter(typeof(SceneSystemGroup))]
 public partial struct InitFollowSplineSys : ISystem {
 	EntityQuery query;
 	

@@ -4,7 +4,7 @@ using Unity.Entities;
 using UnityEngine;
 using static Unity.Entities.SystemAPI;
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateInGroup(typeof(InitializationSystemGroup), OrderLast = true)]
 public partial struct ClearInitRequirementSys : ISystem {
 	EntityQuery query;
 
@@ -14,9 +14,6 @@ public partial struct ClearInitRequirementSys : ISystem {
 	}
 
 	[BurstCompile] public void OnUpdate( ref SystemState state ) {
-		var ecbSingleton = SystemAPI.GetSingleton<EndInitializationEntityCommandBufferSystem.Singleton>();
-		var ecb = ecbSingleton.CreateCommandBuffer( state.WorldUnmanaged );
-		
-		ecb.RemoveComponent<RequireInitData>( query, EntityQueryCaptureMode.AtPlayback );
+		state.EntityManager.RemoveComponent<RequireInitData>( query );
 	}
 }

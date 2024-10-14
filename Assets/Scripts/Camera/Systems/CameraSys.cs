@@ -2,12 +2,13 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Scenes;
 using Unity.Transforms;
 using UnityEngine;
 using static Unity.Entities.SystemAPI;
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
-public partial struct InitCameraRig : ISystem {
+[UpdateInGroup(typeof(InitializationSystemGroup))] [UpdateAfter(typeof(SceneSystemGroup))]
+public partial struct InitCameraRigSys : ISystem {
 	EntityQuery query;
 
 	[BurstCompile] public void OnCreate( ref SystemState state ) {
@@ -16,14 +17,18 @@ public partial struct InitCameraRig : ISystem {
 	}
 
 	public void OnUpdate( ref SystemState state ) {
-		var cameraRigEntity = GetSingletonEntity<CameraData>();
-		var cameraRef = new UnityObjectRef<Camera>();
-		var mainCamera = Camera.main;
-		cameraRef.Value = mainCamera;
 
-		SetComponent( cameraRigEntity, new TargetColorData { defaultColor = (Vector4)mainCamera.backgroundColor, baseColor = (Vector4)mainCamera.backgroundColor } );
-		SetComponent( cameraRigEntity, new CameraData { camera = cameraRef } );
-		SetComponent( cameraRigEntity, new LocalTransform { Position = mainCamera.transform.position, Rotation = mainCamera.transform.rotation, Scale = 1f } );
+		foreach( var (cameraData, targetColorData, transform ) 
+		        in Query<RefRW<CameraData>, RefRW<TargetColorData>, RefRW<LocalToWorld>>().WithOptions( EntityQueryOptions.IgnoreComponentEnabledState ) ) {
+			var mainCamera = Camera.main;
+			cameraData.ValueRW.camera.Value = mainCamera;
+			cameraData.ValueRW.aspect = mainCamera.aspect;
+			mainCamera.orthographic = cameraData.ValueRO.orthographic;
+			mainCamera.orthographicSize = cameraData.ValueRO.orthoSize;
+			mainCamera.transform.position = transform.ValueRO.Position;
+			mainCamera.transform.rotation = transform.ValueRO.Rotation;
+			targetColorData.ValueRW.baseColor = (Vector4)mainCamera.backgroundColor;
+		}
 	}
 }
 
@@ -81,10 +86,12 @@ public partial struct SyncCameraPos : ISystem {
 	}
 	
 	public void OnUpdate( ref SystemState state ) {
-		foreach( var (transform, cameraData) in Query<RefRO<LocalToWorld>, RefRW<CameraData>>() ) {
+		foreach( var (transform, cameraData) in Query<RefRO<LocalToWorld>, RefRW<CameraData>>().WithNone<RequireInitData>() ) {
 			cameraData.ValueRW.camera.Value.transform.position = transform.ValueRO.Position;
 			cameraData.ValueRW.camera.Value.transform.rotation = transform.ValueRO.Rotation;
-			cameraData.ValueRW.camera.Value.orthographicSize = transform.ValueRO.Position.y / 2f;
+			var newOrthoSize = math.max( math.max( transform.ValueRO.Position.x, transform.ValueRO.Position.y ), transform.ValueRO.Position.z ) / 2f;
+			cameraData.ValueRW.camera.Value.orthographicSize = newOrthoSize;
+			cameraData.ValueRW.orthoSize = newOrthoSize;
 		}
 	}
 }

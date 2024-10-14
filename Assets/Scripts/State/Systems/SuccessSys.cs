@@ -4,13 +4,14 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Rendering;
+using Unity.Scenes;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using static Unity.Entities.SystemAPI;
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateInGroup(typeof(InitializationSystemGroup))] [UpdateAfter(typeof(SceneSystemGroup))]
 public partial struct InitSuccessAckSys : ISystem {
     EntityQuery query;
 
@@ -20,7 +21,7 @@ public partial struct InitSuccessAckSys : ISystem {
     }
 
     public void OnUpdate( ref SystemState state ) {
-        var ui = GetSingleton<UIData>();
+        var ui = GetSingleton<InGameUIData>();
         var gameState = GetSingleton<GameStateData>();
         var gameStateEntity = GetSingletonEntity<GameStateData>();
         var successAck = GetSingleton<SuccessAckData>();
@@ -32,17 +33,23 @@ public partial struct InitSuccessAckSys : ISystem {
 
         var successAckEntity = GetSingletonEntity<SuccessAckData>();
         var successAnimationPrefab = gameState.successAnimationPrefab;
-
+        
         var entityManager = state.EntityManager;
-		
+        var levelCount = GetBuffer<Level>( gameStateEntity ).Length;
+
+        SetComponentEnabled<VictoryEnabled>( gameStateEntity, true );
+        
         continueButton.clicked += () => {
             // unload current scene and reload
             entityManager.DestroyEntity( successAckEntity );
             entityManager.Instantiate( successAnimationPrefab );
             ui.document.Value.rootVisualElement.Remove( successPanel );
-            gameState.nextLevel = gameState.curLevel + 1;
-            if( gameState.nextLevel > SceneManager.sceneCountInBuildSettings ) gameState.nextLevel = 1; // skip the "common" scene, since it will have already been loaded
+            gameState.nextLevel = gameState.curLevelIndex + 1;
+            if( gameState.nextLevel > levelCount - 1 ) gameState.nextLevel = 0; // skip the "common" scene, since it will have already been loaded
             entityManager.SetComponentData( gameStateEntity, gameState );
+            
+            var matchInfoDisplay = ui.document.Value.rootVisualElement.Q<VisualElement>( "Match_Info" );
+            matchInfoDisplay.AddToClassList( "out" );
         };
 		
         abortButton.clicked += () => {
@@ -52,14 +59,26 @@ public partial struct InitSuccessAckSys : ISystem {
             ui.document.Value.rootVisualElement.Remove( successPanel );
             gameState.nextLevel = 1; // main menu
             entityManager.SetComponentData( gameStateEntity, gameState );
+            
+            var matchInfoDisplay = ui.document.Value.rootVisualElement.Q<VisualElement>( "Match_Info" );
+            matchInfoDisplay.AddToClassList( "out" );
         };
+
+        var ecbSingleton = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer( state.WorldUnmanaged );
+
+        ecb.Instantiate( successAck.successAckAudio );
     }
 }
 
 public partial struct SuccessAnimationSys : ISystem {
+    EntityQuery particlesQuery;
+    EntityQuery animatedShapesQuery;
 
     [BurstCompile] public void OnCreate( ref SystemState state ) {
         state.RequireForUpdate<SuccessAnimData>();
+        particlesQuery = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<StarParticleData>() );
+        animatedShapesQuery = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<RandomAnimModifierData>() );
     }
 
     [BurstCompile] public void OnUpdate( ref SystemState state ) {
@@ -70,13 +89,21 @@ public partial struct SuccessAnimationSys : ISystem {
 
         if( animationData.ValueRO.timeElapsed == 0f ) {
             var targetColorData = GetComponent<TargetColorData>( cameraEntity );
-            targetColorData.baseColor = targetColorData.defaultColor;
+            targetColorData.baseColor = GetSingleton<GameColorData>().neutralBackground;
             SetComponent( cameraEntity, targetColorData );
             SetComponentEnabled<TargetColorData>( cameraEntity, true );
 
             foreach( var mass in Query<RefRW<PhysicsMass>>() ) {
                 mass.ValueRW = PhysicsMass.CreateKinematic( MassProperties.UnitSphere );
             }
+
+            var ecbSingleton = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
+            var ecb = ecbSingleton.CreateCommandBuffer( state.WorldUnmanaged );
+
+            ecb.Instantiate( animationData.ValueRO.startAnimAudio );
+
+            var levelAudioData = GetSingleton<LevelAudioData>();
+            ecb.SetComponentEnabled<FadeOut>( levelAudioData.musicInstance, true );
         }
 
         if( animationData.ValueRO.timeElapsed < animationData.ValueRO.flareStartTime ) {
@@ -99,6 +126,12 @@ public partial struct SuccessAnimationSys : ISystem {
                 } );
 
                 animationData.ValueRW.flared = true;
+                
+                var ecbSingleton = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
+                var ecb = ecbSingleton.CreateCommandBuffer( state.WorldUnmanaged );
+
+                ecb.Instantiate( animationData.ValueRO.endAnimAudio );
+                ecb.DestroyEntity( animatedShapesQuery, EntityQueryCaptureMode.AtPlayback );
             }
             
             var flareTimeElapsed = animationData.ValueRO.timeElapsed - animationData.ValueRO.flareStartTime;
@@ -108,6 +141,24 @@ public partial struct SuccessAnimationSys : ISystem {
                 // scale in the flare
                 flareTransform.Scale = animationData.ValueRO.easing.Value.Sample( flareTimeElapsed );
                 SetComponent( flareEntity, flareTransform );
+
+                if( !animationData.ValueRO.particlesSpawned ) {
+                    var gameStateEntity = GetSingletonEntity<GameStateData>();
+                    var gameState = GetComponent<GameStateData>( gameStateEntity );
+                    var levelsBuf = GetBuffer<Level>( gameStateEntity );
+                    var levelTimer = GetSingleton<LevelTimerData>();
+                    
+                    // determine number of stars to spawn in
+                    var bestTimeThisLevel = levelsBuf[ gameState.curLevelIndex ].bestTime;
+                    var numStarsToSpawn = GameStateData.maxNumStars - (int)math.min(levelTimer.value / bestTimeThisLevel, GameStateData.maxNumStars - 1);
+                    
+                    var ecbSingleton = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
+                    var ecb = ecbSingleton.CreateCommandBuffer( state.WorldUnmanaged );
+
+                    ecb.Instantiate( animationData.ValueRO.particlePrefab, new NativeArray<Entity>( numStarsToSpawn, Allocator.Temp ) );
+                    
+                    animationData.ValueRW.particlesSpawned = true;
+                }
             }
             else {
                 var finishedFlareTimeElapsed = flareTimeElapsed - animationData.ValueRO.flareDuration;
@@ -122,6 +173,8 @@ public partial struct SuccessAnimationSys : ISystem {
             
                     var gameStateEntity = GetSingletonEntity<GameStateData>();
                     ecb.AddComponent( gameStateEntity, new SwitchLevel {} );
+
+                    ecb.DestroyEntity( particlesQuery, EntityQueryCaptureMode.AtPlayback );
                 }
             }
         }

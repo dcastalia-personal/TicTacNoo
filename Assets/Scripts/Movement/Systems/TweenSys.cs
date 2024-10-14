@@ -32,7 +32,7 @@ public partial struct TweenScaleSys : ISystem {
 				scaleOnCurveDataEnabled.ValueRW = false;
 			}
 
-			transform.ValueRW.Scale = scaleOnCurveData.ValueRO.curve.Value.Sample( scaleOnCurveData.ValueRO.elapsedTime );
+			transform.ValueRW.Scale = scaleOnCurveData.ValueRO.curve.Value.Sample( scaleOnCurveData.ValueRO.elapsedTime ) * scaleOnCurveData.ValueRO.multiplier;
 		}
 	}
 }

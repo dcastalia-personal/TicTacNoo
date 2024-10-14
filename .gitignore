@@ -20,6 +20,10 @@ Assets/SceneDependencyCache
 # Mac system files
 *.DS_Store
 
+# Licensed audio
+*.wav
+*.wav.meta
+
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/

@@ -45,6 +45,7 @@ Material:
     - _Steps: 4.94
     - _Width: 0.02
     m_Colors:
+    - _BaseColor: {r: 1, g: 0.37264147, b: 0.37264147, a: 1}
     - _Color: {r: 1, g: 0.3726415, b: 0.3726415, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

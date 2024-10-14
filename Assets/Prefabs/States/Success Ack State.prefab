@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   successUIPrefab: {fileID: 9197481963319205126, guid: 8aa88df30b5ca405a8aa481962e1a1ab, type: 3}
+  successAudio: {fileID: 4586654527562981158, guid: 8f7e7422d8c5041c295ff6cd36f464ea, type: 3}
 --- !u!114 &8138735087022783942
 MonoBehaviour:
   m_ObjectHideFlags: 0

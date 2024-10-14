@@ -1,0 +1,26 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/Levels.uss?fileID=7433441132597879392&amp;guid=295fb4dd819fc4ff88a485beec237615&amp;type=3#Levels" />
+    <ui:VisualElement style="flex-direction: row; height: 33px;">
+        <ui:VisualElement class="leftColumn">
+            <ui:Label text="1." name="Number_Label" />
+        </ui:VisualElement>
+        <ui:VisualElement class="midColumn">
+            <ui:Label text="1.00s" name="Time_Label" />
+        </ui:VisualElement>
+        <ui:VisualElement name="Rating" class="ratingColumn" style="flex-direction: row;">
+            <ui:VisualElement name="Star0" class="star" style="flex-grow: 1; margin-top: 2px; margin-bottom: 2px;" />
+            <ui:VisualElement name="Star1" class="star" style="flex-grow: 1; margin-top: 2px; margin-bottom: 2px;" />
+            <ui:VisualElement name="Star2" class="star" style="flex-grow: 1; margin-top: 2px; margin-bottom: 2px;" />
+            <ui:VisualElement name="Star3" class="star" style="flex-grow: 1; margin-top: 2px; margin-bottom: 2px;" />
+            <ui:VisualElement name="Star4" class="star" style="flex-grow: 1; margin-top: 2px; margin-bottom: 2px;" />
+            <ui:VisualElement name="Star5" class="star" style="flex-grow: 1; margin-top: 2px; margin-bottom: 2px;" />
+            <ui:VisualElement name="Star6" class="star" style="flex-grow: 1; margin-top: 2px; margin-bottom: 2px;" />
+            <ui:VisualElement name="Star7" class="star" style="flex-grow: 1; margin-top: 2px; margin-bottom: 2px;" />
+            <ui:VisualElement name="Star8" class="star" style="flex-grow: 1; margin-top: 2px; margin-bottom: 2px;" />
+            <ui:VisualElement name="Star9" class="star" style="flex-grow: 1; margin-top: 2px; margin-bottom: 2px;" />
+        </ui:VisualElement>
+        <ui:VisualElement class="rightColumn" style="flex-grow: 1; margin-left: 10px;">
+            <ui:Button text="Repeat" name="Load_Button" class="load" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

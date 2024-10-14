@@ -1,0 +1,65 @@
+Label {
+    color: rgb(255, 255, 255);
+    -unity-font-definition: url("project://database/Assets/Fonts/ShareTechMono-Regular.ttf?fileID=12800000&guid=5543eb007fd7b47e7926cbe052df726c&type=3#ShareTechMono-Regular");
+}
+
+Label.title {
+    font-size: 24px;
+}
+
+VisualElement.leftColumn {
+    width: 25%;
+}
+
+VisualElement.midColumn {
+    width: 15%;
+}
+
+VisualElement.rightColumn {
+    width: 25%;
+}
+
+Button.load {
+    background-image: url("project://database/Assets/Sprites/Rounded%20Rect.png?fileID=2800000&guid=60693413379a04046af722ae0e841646&type=3#Rounded Rect");
+    background-color: rgba(0, 0, 0, 0);
+    border-left-color: rgba(0, 0, 0, 0);
+    border-right-color: rgba(0, 0, 0, 0);
+    border-top-color: rgba(0, 0, 0, 0);
+    border-bottom-color: rgba(0, 0, 0, 0);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    -unity-slice-left: 72;
+    -unity-slice-top: 0;
+    -unity-slice-right: 72;
+    -unity-slice-bottom: 0;
+    -unity-background-scale-mode: stretch-to-fill;
+    -unity-slice-scale: 0.2px;
+    -unity-font-definition: url("project://database/Assets/Fonts/ShareTechMono-Regular.ttf?fileID=12800000&guid=5543eb007fd7b47e7926cbe052df726c&type=3#ShareTechMono-Regular");
+}
+
+.in {
+    transition-property: opacity;
+    transition-duration: 1s;
+    opacity: 1;
+}
+
+.out {
+    transition-property: opacity;
+    transition-duration: 1s;
+    opacity: 0;
+}
+
+VisualElement.ratingColumn {
+    width: 35%;
+}
+
+.star {
+    -unity-background-scale-mode: scale-to-fit;
+    background-image: url("project://database/Assets/Sprites/star.psd?fileID=2800000&guid=9d5debf821cd94d99978624d9306f63f&type=3#star");
+}

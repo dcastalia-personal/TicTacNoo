@@ -13,5 +13,5 @@ public class LevelTimer : MonoBehaviour {
 }
 
 public struct LevelTimerData : IComponentData {
-	public float time;
+	public float value;
 }

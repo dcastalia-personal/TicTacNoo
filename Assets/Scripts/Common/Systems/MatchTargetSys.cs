@@ -1,15 +1,18 @@
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Transforms;
-using static Unity.Entities.SystemAPI;
+using Unity.Mathematics;
+using UnityEngine;
 
+[UpdateAfter(typeof(TransformSystemGroup))]
 public partial struct MatchTargetSys : ISystem {
 	EntityQuery query;
 	ComponentLookup<LocalToWorld> localToWorldLookup;
 	
 	[BurstCompile] public void OnCreate( ref SystemState state ) {
-		localToWorldLookup = state.GetComponentLookup<LocalToWorld>( isReadOnly: true );
+		localToWorldLookup = state.GetComponentLookup<LocalToWorld>( isReadOnly: false );
         
 		query = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<MatchTargetPosData, LocalTransform>() );
 		state.RequireForUpdate( query );
@@ -21,11 +24,21 @@ public partial struct MatchTargetSys : ISystem {
 	}
 
 	[BurstCompile] partial struct MatchTargetJob : IJobEntity {
-		[ReadOnly] public ComponentLookup<LocalToWorld> localToWorldLookup;
+		[NativeDisableContainerSafetyRestriction] public ComponentLookup<LocalToWorld> localToWorldLookup;
 		
-		void Execute( in MatchTargetPosData matchTargetPositionData, ref LocalTransform transform ) {
+		void Execute( Entity self, in MatchTargetPosData matchTargetPositionData, ref LocalTransform transform ) {
+			var myLtw = localToWorldLookup[ self ];
 			var targetLtw = localToWorldLookup[ matchTargetPositionData.target ];
-			transform.Position = targetLtw.Position;
+			var offsetPosition = math.transform( targetLtw.Value, matchTargetPositionData.localOffset );
+
+			var trs = myLtw.Value;
+			var pos = trs.c3;
+			pos = new float4( offsetPosition, 0f );
+			trs.c3 = pos;
+			myLtw.Value = trs;
+
+			localToWorldLookup[ self ] = myLtw;
+			transform.Position = offsetPosition;
 		}
 	}
 }

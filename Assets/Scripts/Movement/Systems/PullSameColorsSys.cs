@@ -37,7 +37,7 @@ public partial struct PullSameColorsSys : ISystem {
 	EntityQuery stepQuery;
 	
 	[BurstCompile] public void OnCreate( ref SystemState state ) {
-		query = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<PullSameColorsData, TargetColorData>() );
+		query = state.GetEntityQuery( new EntityQueryBuilder( Allocator.Temp ).WithAll<PullSameColorsData, MatchableColor>() );
 		state.RequireForUpdate( query );
 
 		state.RequireForUpdate<InGameData>();
@@ -48,10 +48,8 @@ public partial struct PullSameColorsSys : ISystem {
 	[BurstCompile] public void OnUpdate( ref SystemState state ) {
 		if( stepQuery.IsEmpty ) return;
 		
-		var levelColors = GetSingletonBuffer<LevelColorData>();
-        
-		var pullersByColor = new NativeParallelMultiHashMap<float4, SpeedByPosition>( levelColors.Length, Allocator.TempJob );
-		var buildPullersJob = new BuildPullersByColorJob { pullersByColor = pullersByColor.AsParallelWriter() }.ScheduleParallel( state.Dependency );
+		var pullersByColor = new NativeParallelMultiHashMap<float4, PullerData>( query.CalculateEntityCount(), Allocator.TempJob );
+		var buildPullersJob = new BuildPullersByColorJob { pullersByColor = pullersByColor.AsParallelWriter(), neutralColor = GetSingleton<GameColorData>().neutral }.ScheduleParallel( state.Dependency );
 		var pullSameColorsJob = new PullSameColorsJob { pullersByColor = pullersByColor.AsReadOnly() }.ScheduleParallel( buildPullersJob );
 
 		pullSameColorsJob.Complete();
@@ -60,37 +58,51 @@ public partial struct PullSameColorsSys : ISystem {
 	}
 	
 	[BurstCompile] partial struct BuildPullersByColorJob : IJobEntity {
-		public NativeParallelMultiHashMap<float4, SpeedByPosition>.ParallelWriter pullersByColor;
+		public NativeParallelMultiHashMap<float4, PullerData>.ParallelWriter pullersByColor;
+		public float4 neutralColor;
 		
-		void Execute( Entity self, in PullSameColorsData pullSameColorsData, in TargetColorData colorData, in LocalTransform transform ) {
-			if( !colorData.baseColor.Equals( colorData.defaultColor ) ) {
-				pullersByColor.Add( colorData.baseColor, new SpeedByPosition { speed = pullSameColorsData.speed, position = transform.Position, puller = self, preferredDistance = pullSameColorsData.preferredDist } );
+		void Execute( Entity self, in PullSameColorsData pullSameColorsData, in MatchableColor colorData, in LocalToWorld transform ) {
+			if( !colorData.value.Equals( neutralColor ) ) {
+				pullersByColor.Add( colorData.value, new PullerData {
+					speed = pullSameColorsData.speed, 
+					position = transform.Position, 
+					puller = self, 
+					preferredDistance = pullSameColorsData.preferredDist,
+					forward = transform.Forward,
+					dotThreshold = pullSameColorsData.dotThreshold,
+				} );
 			}
 		}
 	}
 
 	[BurstCompile] partial struct PullSameColorsJob : IJobEntity {
-		[ReadOnly] public NativeParallelMultiHashMap<float4, SpeedByPosition>.ReadOnly pullersByColor;
+		[ReadOnly] public NativeParallelMultiHashMap<float4, PullerData>.ReadOnly pullersByColor;
 		
-		void Execute( Entity self, in TargetColorData pullableColorData, ref PhysicsVelocity velocity, in PhysicsMass mass, in LocalTransform transform ) {
-			if( !pullersByColor.TryGetFirstValue( pullableColorData.baseColor, out SpeedByPosition speedByPosition, out NativeParallelMultiHashMapIterator<float4> iterator ) ) return;
+		void Execute( Entity self, in MatchableColor pullableColorData, ref PhysicsVelocity velocity, in PhysicsMass mass, in LocalToWorld ltw ) {
+			if( !pullersByColor.TryGetFirstValue( pullableColorData.value, out PullerData pullerData, out NativeParallelMultiHashMapIterator<float4> iterator ) ) return;
 
 			do {
-				if( speedByPosition.puller == self ) continue;
-				var dirToPuller = math.normalize( speedByPosition.position - transform.Position );
-				var preferredPosition = speedByPosition.position + -dirToPuller * speedByPosition.preferredDistance;
-				var dirToPreferredPosition = math.normalize( preferredPosition - transform.Position );
-
-				velocity.ApplyLinearImpulse( mass, dirToPreferredPosition * speedByPosition.speed );
+				if( pullerData.puller == self ) continue;
+				var dirToPuller = math.normalize( pullerData.position - ltw.Position );
+				var dot = math.max( math.dot( pullerData.forward, -dirToPuller ), pullerData.dotThreshold );
+				var remappedDot = math.remap( pullerData.dotThreshold, 1f, 0f, 1f, dot );
+				if( dot == 0f ) continue;
 				
-			} while( pullersByColor.TryGetNextValue( out speedByPosition, ref iterator ) );
+				var preferredPosition = pullerData.position + -dirToPuller * pullerData.preferredDistance;
+				var dirToPreferredPosition = math.normalize( preferredPosition - ltw.Position );
+
+				velocity.ApplyLinearImpulse( mass, dirToPreferredPosition * pullerData.speed * remappedDot );
+				
+			} while( pullersByColor.TryGetNextValue( out pullerData, ref iterator ) );
 		}
 	}
 
-	struct SpeedByPosition {
+	struct PullerData {
 		public float speed;
 		public float3 position;
 		public float preferredDistance;
+		public float3 forward;
 		public Entity puller;
+		public float dotThreshold;
 	}
 }

@@ -56,6 +56,9 @@ MonoBehaviour:
   postFlareDuration: 1
   flare: {fileID: 1800853923272422562}
   flareEasing: {fileID: 469610154951111980, guid: e40b3125d32df4d01ada3c52dc4a7c42, type: 3}
+  startAudio: {fileID: 4586654527562981158, guid: d512d1ed75dcb4059b8d2f25f1419855, type: 3}
+  endAudio: {fileID: 4586654527562981158, guid: 87d7f03ff7b38481ab263380ce445133, type: 3}
+  starParticle: {fileID: 7587485331724538619, guid: 60f696aae99b44b4f824da1112a3251d, type: 3}
 --- !u!114 &3951767132587480548
 MonoBehaviour:
   m_ObjectHideFlags: 0

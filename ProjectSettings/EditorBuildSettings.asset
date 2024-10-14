@@ -6,53 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Common.unity
+    path: Assets/Scenes/Main.unity
     guid: a37270ffde6c545288d0a9f04da2bfe4
-  - enabled: 1
-    path: Assets/Scenes/Menu.unity
-    guid: 4c2cd0255817245559fe8461822911ed
-  - enabled: 1
-    path: Assets/Scenes/Intro.unity
-    guid: c92eeae2d260f4b32b1f436933d06238
-  - enabled: 1
-    path: Assets/Scenes/3x3.unity
-    guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
-    path: Assets/Scenes/3x3 with extras.unity
-    guid: c3bab5e6a45e14399bb4290518a5e314
-  - enabled: 1
-    path: Assets/Scenes/3x3x3-3.unity
-    guid: 959844f58f5074c599144d893b98b76f
-  - enabled: 1
-    path: Assets/Scenes/3x3 moving.unity
-    guid: 0dccc9a0d73bf4039899ca49d96a95ae
-  - enabled: 1
-    path: Assets/Scenes/Cross moving.unity
-    guid: 9af299bec4d934bf4beb722f71cf2e04
-  - enabled: 1
-    path: Assets/Scenes/2x2 magnets.unity
-    guid: 8c32656d938fc4b6c9ab93cb5c63804c
-  - enabled: 1
-    path: Assets/Scenes/4x4 moving.unity
-    guid: 855697a73eb8046cf92095e0915407b0
-  - enabled: 1
-    path: Assets/Scenes/3x3x3.unity
-    guid: 6c71b0be0986c4ab6a4be8bfb1c89ba7
-  - enabled: 1
-    path: Assets/Scenes/3x3x3 3 colors 3 paths.unity
-    guid: d54daf1d320c045618299af991d53c82
-  - enabled: 1
-    path: Assets/Scenes/4x4 donut move star.unity
-    guid: 7a1ab0a7b95f64bbe80a5af1bd35d754
-  - enabled: 1
-    path: Assets/Scenes/4x4 moving stars.unity
-    guid: d954915e1f8194533a4c595ceadba0db
-  - enabled: 1
-    path: Assets/Scenes/4x4x4 magnet to spark.unity
-    guid: 7a5d81aa2fabc4a9ea7a44311092bede
-  - enabled: 1
-    path: Assets/Scenes/Outro.unity
-    guid: a22c2c144263d4bcd9cf5cc2a7655956
   m_configObjects:
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 0f231437011cd4ca19f7dced84bb2546, type: 3}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: cea885e1497434c05b1492d1e67b7ade, type: 3}
   m_UseUCBPForAssetBundles: 0
